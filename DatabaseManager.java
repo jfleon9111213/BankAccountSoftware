@@ -12,11 +12,16 @@ public class DatabaseManager {
 	private DatabaseManager() 
 	{
 		try {
-			myConn = DriverManager.getConnection("jdbc:mysql://localhost:3306", "root", "");
-				
+			String userName = "Eperez";
+			String passWord = "enriqueperez9";
+			
+			String url = "jdbc:sqlserver://DESKTOP-N08O38T\\PROGRAMINGSERVER:1433";
+					
+			myConn = DriverManager.getConnection(url, userName, passWord);
+			
 			myStmt = myConn.createStatement();
 		
-			myStmt.executeQuery("use BANK");
+			myStmt.execute("use Bank");
 		
 		}
 		catch(Exception ex)
@@ -24,6 +29,8 @@ public class DatabaseManager {
 			createDatabase();
 		}
 	}
+	
+	
 	public static DatabaseManager getInstance()
 	{
 		if(instance == null)
@@ -54,17 +61,17 @@ public class DatabaseManager {
 		try{
 				Statement myStmt = myConn.createStatement();
 			
-				ResultSet myRs = myStmt.executeQuery("SELECT * FROM BANK");
+				ResultSet myRs = myStmt.executeQuery("SELECT * FROM Accounts");
 		
 				while(myRs.next())
 				{
 				
-					if(UserName.equals(myRs.getString("User_Name"))&&
-							PassWord.equals(myRs.getString("Password"))&&
-							Pin.equals(myRs.getString("PIN")))
+					if(UserName.equals(myRs.getString("First_Name"))&&
+							PassWord.equals(myRs.getString("Pass_Word"))&&
+							Pin.equals(myRs.getString("Pin")))
 					{
-						
-						return new Handle(myRs.getString("AccountNum"), this, myRs);
+						setUpHandle setup = new setUpHandle();
+						return setup.getHandle();
 						//EncryptDecryptinfo Encrypt =
 							//	new EncryptDecryptinfo(myRs.getString("AccountNum"));
 				
@@ -83,23 +90,74 @@ public class DatabaseManager {
 		return null;
 	}
 	
+	/*we will need another inner class getHandle
+	 * and another node list for all handles created by the Database manager
+	 * that way.. if a Handle was created by another class and it was passed to Database
+	 * it wouldn't be able to update the database because it wasn't created by the database
+	 * */
 	
+	private class setUpHandle{
+		
+		Handle currentHandle;
+		public setUpHandle()
+		{
+			getChecking();
+			getSavings();
+			getCreditCards();
+			this.currentHandle = currentHandle;
+		}
+		public Handle getHandle()
+		{
+			return currentHandle;
+		
+		}
+		private  void getChecking()
+		{
+			
+		}
+		
+		private void getSavings()
+		{
+			
+		}
+		
+		private void getCreditCards()
+		{
+			
+		}
+	}
 	
-	
+	private void createCheckingTable()
+	{
+		try {
+			myStmt = myConn.createStatement();
+			String line = "create table Checking ("
+					+ " Account_Number int Primary Key identity(1,1), "
+					+ " Checking varchar(20),"
+					+ " Routing_Number varchar(30),)"; 
+			
+			myStmt.execute(line);
+			
+		}catch(Exception ex)
+		{
+			System.out.println("FATAL CRASH");
+			ex.printStackTrace();
+			System.exit(0);
+		}
+	}
 	
 	private void createAccountsTable()
 	{	try{
+		
 		myStmt = myConn.createStatement();
 		
-		String line = "CREATE TABLE Accounts( "
-				+ "Account_Number INT NULL," 
-				+ "First_Name VARCHAR(45) NULL,"
-				+ "Last_Name VARCHAR(45) NULL,"
-				+ "Pin VARCHAR(45) NULL,"
-				+ "Routing_Number VARCHAR(45) NULL,"
-				+ "Pass_Word VARCHAR(45) NULL,"
-				+ "DOB VARCHAR(45) NULL,"
-				+ "PRIMARY KEY (Account_Number));";
+		String line = "create table Accounts ("
+				+ "Account_Number int Primary Key identity(1,1),"
+				+ "First_Name varchar(30),"
+				+ "Last_Name varchar(30),"
+				+ "Pin varchar(5),"
+				+ "Pass_Word varchar(30),"
+				+ "DOB date,)" ;
 		
 		myStmt.execute(line);
 		
@@ -111,10 +169,7 @@ public class DatabaseManager {
 		
 	}
 	
-	
-	
-	
-	
+
 	private void createDatabase()
 	{
 		try{
@@ -122,7 +177,7 @@ public class DatabaseManager {
 	
 				myStmt.execute("create Database Bank");
 				
-				myStmt.executeQuery("use Bank");
+				myStmt.execute("use Bank");
 				
 			}catch(Exception ex){
 				System.out.println("FATAL CRASH");

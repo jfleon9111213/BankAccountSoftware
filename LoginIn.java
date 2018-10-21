@@ -18,6 +18,10 @@ public class LoginIn extends JFrame {
 	public LoginIn()
 	{
 		CreateWindow();
+
+		// Singleton principle to obtain a Database Manager
+		// once we get the object pass in the user_name pass_word and pin
+		// OBTAIN A HANDLE which is an object of that persons's account  
 		Manager = DatabaseManager.getInstance();
 	}
 	
@@ -51,10 +55,7 @@ public class LoginIn extends JFrame {
 		
 		//create an action listener 
 		Sign_In.addActionListener(new ButtonListener());
-		
-		
-		
-		
+
 		Create_An_Account = new JButton("Make an Account");
 		
 		Create_An_Account.addActionListener(new ButtonListener());
@@ -136,9 +137,6 @@ public class LoginIn extends JFrame {
 					String pass_word = PassWord.getText();
 					String pin = PIN.getText();
 					
-					// Singleton principle to obtain a Database Manager
-					// once we get the object pass in the user_name pass_word and pin
-					// OBTAIN A HANDLE which is an object of that persons's account  
 					
 					Handle handle = Manager.getHandle(user_name, pass_word, pin);
 					 
