@@ -3,6 +3,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
+import javax.swing.JOptionPane;
+
 
 public class DatabaseManager {
 
@@ -12,10 +14,10 @@ public class DatabaseManager {
 	private DatabaseManager() 
 	{
 		try {
-			String userName = "Eperez";
-			String passWord = "enriqueperez9";
+			String userName = "sa";
+			String passWord = "CS3650";
 			
-			String url = "jdbc:sqlserver://DESKTOP-N08O38T\\PROGRAMINGSERVER:1433";
+			String url = "jdbc:sqlserver://DESKTOP-MK8HBBS\\PROGRAMINGSERVER:1433";
 					
 			myConn = DriverManager.getConnection(url, userName, passWord);
 			
@@ -26,6 +28,7 @@ public class DatabaseManager {
 		}
 		catch(Exception ex)
 		{
+			ex.printStackTrace();
 			createDatabase();
 		}
 	}
@@ -47,6 +50,23 @@ public class DatabaseManager {
 		return instance; 
 	}
 	
+	public boolean CreateAccount(String[] Array)
+	{
+		try {
+			myStmt = myConn.createStatement();
+			myStmt.execute("use Accounts");
+			
+			String sql = "Insert into Accounts "
+					+ "";
+			myStmt.executeUpdate(sql);
+			return true;
+		}catch(Exception ex)
+		{
+			JOptionPane.showMessageDialog(null, "ERROR: Creating an Account");
+			return false;
+		}
+		
+	}
 	public Handle getHandle(String UserName, String PassWord, String Pin)
 	{
 		
@@ -70,7 +90,7 @@ public class DatabaseManager {
 							PassWord.equals(myRs.getString("Pass_Word"))&&
 							Pin.equals(myRs.getString("Pin")))
 					{
-						setUpHandle setup = new setUpHandle();
+						setUpHandle setup = new setUpHandle(myRs.getString("Account_Number"));
 						return setup.getHandle();
 						//EncryptDecryptinfo Encrypt =
 							//	new EncryptDecryptinfo(myRs.getString("AccountNum"));
@@ -98,35 +118,84 @@ public class DatabaseManager {
 	
 	private class setUpHandle{
 		
-		Handle currentHandle;
-		public setUpHandle()
+		private Handle currentHandle;
+		private String Account_Number;
+		public setUpHandle(String Account_Number)
 		{
-			getChecking();
-			getSavings();
-			getCreditCards();
-			this.currentHandle = currentHandle;
+			this.Account_Number = Account_Number;
+			this.currentHandle = new Handle(getChecking(), getSavings(), getCreditCards());
 		}
 		public Handle getHandle()
 		{
 			return currentHandle;
 		
 		}
-		private  void getChecking()
+		private  String getChecking()
 		{
-			
+			return obtainValue("SELECT * FROM Checking", "Checking");
 		}
 		
-		private void getSavings()
+		private String getSavings()
 		{
-			
+			return obtainValue("SELECT * FROM Savings", "Savings");
 		}
 		
-		private void getCreditCards()
+		private String getCreditCards()
 		{
+			return obtainValue("SELECT * FROM Savings", "Credit");
+		}
+		
+		private String obtainValue(String line, String get)
+		{
+			try {
+				
+			}catch(Exception ex)
+			{
+				if(get.equals("Checking"))
+				{
+					createCheckingTable();
+				}else if(get.equals("Savings")){
+					createSavingsTable();
+				}else if(get.equals("Credit")) {
+					createCreditTable();
+				}
+			}
 			
+			return null;
 		}
 	}
 	
+	private void createCreditTable()
+	{
+		try {
+			myStmt = myConn.createStatement();
+			String line = "create table Credit ("
+					+ "Account_Number int Primary Key identity (1,1), ";
+			myStmt.execute(line);
+			
+		}catch (Exception ex) {
+			JOptionPane.showMessageDialog(null, "ERROR: Creating Credit Table");
+			ex.printStackTrace();
+			System.exit(0);
+		}
+	}
+	private void createSavingsTable()
+	{
+		try {
+			myStmt = myConn.createStatement();
+			String line = "create table Savings ("
+					+ "Account_Number int Primary Key identity (1,1), "
+					+ "Savings varchar(20), "
+					+ "Routing_Number varchar(30),)";
+			myStmt.execute(line);
+			
+		}catch(Exception ex)
+		{
+			JOptionPane.showMessageDialog(null, "ERROR: Creating Savings Table");
+			ex.printStackTrace();
+			System.exit(0);
+		}
+	}
 	private void createCheckingTable()
 	{
 		try {
@@ -140,14 +209,14 @@ public class DatabaseManager {
 			
 		}catch(Exception ex)
 		{
-			System.out.println("FATAL CRASH");
+			JOptionPane.showMessageDialog(null, "ERROR: Creating Checking Table");
 			ex.printStackTrace();
 			System.exit(0);
 		}
 	}
-	
 	private void createAccountsTable()
-	{	try{
+	{	
+		try{
 		
 		myStmt = myConn.createStatement();
 		
@@ -161,15 +230,14 @@ public class DatabaseManager {
 		
 		myStmt.execute(line);
 		
-	}catch(Exception ex){
-		System.out.println("FATAL CRASH");
-		ex.printStackTrace();
-		System.exit(0);
-	}
+		}catch(Exception ex){
+			
+			JOptionPane.showMessageDialog(null, "ERROR: Creating Accounts Table");
+			ex.printStackTrace();
+			System.exit(0);
+		}
 		
 	}
-	
-
 	private void createDatabase()
 	{
 		try{
@@ -180,7 +248,7 @@ public class DatabaseManager {
 				myStmt.execute("use Bank");
 				
 			}catch(Exception ex){
-				System.out.println("FATAL CRASH");
+				JOptionPane.showMessageDialog(null, "ERROR: Creating Database");
 				ex.printStackTrace();
 				System.exit(0);
 			}

@@ -77,8 +77,6 @@ public class LoginIn extends JFrame {
 
 		PassWord = new JTextField(12);
 
-		
-		
 		Pin = new JLabel("PIN");
 
 		PIN = new JTextField(12);
@@ -133,15 +131,13 @@ public class LoginIn extends JFrame {
 		{
 				if(e.getSource() == Sign_In)
 				{
-					String user_name = User_Name.getText();
-					String pass_word = PassWord.getText();
-					String pin = PIN.getText();
-					
-					
-					Handle handle = Manager.getHandle(user_name, pass_word, pin);
+					if(checkText())
+					{
+					Handle handle = Manager.getHandle(User_Name.getText(), PassWord.getText(), PIN.getText());
 					 
 					if(handle != null)
 						{
+							//MainMenu
 							end();
 						
 						}else{
@@ -149,14 +145,28 @@ public class LoginIn extends JFrame {
 							PassWord.setText("");
 							PIN.setText("");
 						}
+					}
 				}
 				
 				if(e.getSource() == Create_An_Account)
 				{
 					end();
+					new CreateAnAccount();
 					
 				}
 				
+		}
+
+		private boolean checkText() {
+			
+			if(User_Name.getText() != null && PassWord.getText() != null && PIN.getText() != null)
+				{
+					return true;
+				}
+			User_Name.setText("");
+			PassWord.setText("");
+			PIN.setText("");
+			return false;
 		}
 	}
 	
